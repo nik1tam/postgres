@@ -17369,6 +17369,11 @@ SplitColQualList(List *qualList,
 		{
 			String	*toaster_name = (String*) n;
 
+			if (toaster == NULL)
+				ereport(ERROR,
+						(errcode(ERRCODE_SYNTAX_ERROR),
+						 errmsg("TOASTER clause not allowed")));
+
 			if (*toaster)
 				ereport(ERROR,
 						(errcode(ERRCODE_SYNTAX_ERROR),
