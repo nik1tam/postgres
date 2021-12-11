@@ -1017,6 +1017,7 @@ get_object_address(ObjectType objtype, Node *object,
 			case OBJECT_ACCESS_METHOD:
 			case OBJECT_PUBLICATION:
 			case OBJECT_SUBSCRIPTION:
+			case OBJECT_TOASTER:
 				address = get_object_address_unqualified(objtype,
 														 castNode(String, object), missing_ok);
 				break;
@@ -1269,6 +1270,13 @@ get_object_address_unqualified(ObjectType objtype,
 			address.classId = AccessMethodRelationId;
 			address.objectId = get_am_oid(name, missing_ok);
 			address.objectSubId = 0;
+			break;
+		case OBJECT_TOASTER:
+			/* XXX - teodor */
+			address.classId = InvalidOid;
+			address.objectId = InvalidOid;
+			address.objectSubId = 0;
+			elog(ERROR, "unimplemented yet (toaster: %s)", strVal(strval));
 			break;
 		case OBJECT_DATABASE:
 			address.classId = DatabaseRelationId;
@@ -2336,6 +2344,7 @@ pg_get_object_address(PG_FUNCTION_ARGS)
 		case OBJECT_SCHEMA:
 		case OBJECT_SUBSCRIPTION:
 		case OBJECT_TABLESPACE:
+		case OBJECT_TOASTER:
 			if (list_length(name) != 1)
 				ereport(ERROR,
 						(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
