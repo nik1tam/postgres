@@ -73,6 +73,7 @@ typedef struct varatt_external
 								 * compression method */
 	Oid			va_valueid;		/* Unique ID of value within TOAST table */
 	Oid			va_toastrelid;	/* RelID of TOAST table containing it */
+	Oid			va_toasterid;	/* ID of TOAST handler from PG_TOASTER table */
 }			varatt_external;
 
 /*
