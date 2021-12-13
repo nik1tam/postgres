@@ -90,6 +90,7 @@ GetToaster(Oid tsrid, bool missing_ok)
  * If missing_ok is false, throw an error if name not found.  If true, just
  * return InvalidOid.
  */
+/*
 Oid
 get_toaster_oid(const char *tsrname, bool missing_ok)
 {
@@ -103,3 +104,4 @@ get_toaster_oid(const char *tsrname, bool missing_ok)
 				 errmsg("toaster \"%s\" does not exist", tsrname)));
 	return oid;
 }
+*/

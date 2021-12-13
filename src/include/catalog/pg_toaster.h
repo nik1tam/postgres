@@ -53,7 +53,7 @@ typedef struct Toaster
 } Toaster;
 
 extern Toaster *GetToaster(Oid tsrid, bool missing_ok);
-Oid get_toaster_oid(const char *tsrname, bool missing_ok)
+/* Oid get_toaster_oid(const char *tsrname, bool missing_ok) */
 
 #ifdef EXPOSE_TO_CLIENT_CODE
 
