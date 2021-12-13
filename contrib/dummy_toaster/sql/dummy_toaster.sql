@@ -14,6 +14,3 @@ CREATE TABLE tst2 (
 
 ALTER TABLE tst2 ALTER COLUMN t SET TOASTER dummy_toaster;
 
--- XXX teodor: to be removed after COMMENT wiil works, because module script
--- already contains this query
-COMMENT ON TOASTER dummy_toaster IS 'dummy_toaster is a dummy toaster';

@@ -30,7 +30,7 @@ CATALOG(pg_toaster,9861,ToasterRelationId)
 {
 	Oid			oid;			/* oid */
 
-	/* access method name */
+	/* toaster name */
 	NameData	tsrname;
 
 	/* handler function */
