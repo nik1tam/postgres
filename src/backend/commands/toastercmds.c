@@ -168,7 +168,6 @@ lookup_toaster_handler_func(List *handler_name)
 {
 	Oid			handlerOid;
 	Oid			funcargtypes[1] = {INTERNALOID};
-	Oid			expectedType = InvalidOid;
 
 	if (handler_name == NIL)
 		ereport(ERROR,

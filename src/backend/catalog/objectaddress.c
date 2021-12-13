@@ -767,6 +767,10 @@ static const struct object_type_map
 	{
 		"schema", OBJECT_SCHEMA
 	},
+	/* OCLASS_STATISTIC_EXT */
+	{
+		"statistics object", OBJECT_STATISTIC_EXT
+	},
 	/* OCLASS_TSPARSER */
 	{
 		"text search parser", OBJECT_TSPARSER
@@ -843,9 +847,9 @@ static const struct object_type_map
 	{
 		"transform", OBJECT_TRANSFORM
 	},
-	/* OCLASS_STATISTIC_EXT */
+	/* OCLASS_TOASTER */
 	{
-		"statistics object", OBJECT_STATISTIC_EXT
+		"toaster", OBJECT_TOASTER
 	}
 };
 
@@ -4068,6 +4072,26 @@ getObjectDescription(const ObjectAddress *object, bool missing_ok)
 				break;
 			}
 
+		case OCLASS_TOASTER:
+			{
+				HeapTuple	tup;
+
+				tup = SearchSysCache1(TOASTEROID,
+									  ObjectIdGetDatum(object->objectId));
+				if (!HeapTupleIsValid(tup))
+				{
+					if (!missing_ok)
+						elog(ERROR, "cache lookup failed for toaster %u",
+							 object->objectId);
+					break;
+				}
+
+				appendStringInfo(&buffer, _("toaster %s"),
+								 NameStr(((Form_pg_toaster) GETSTRUCT(tup))->tsrname));
+				ReleaseSysCache(tup);
+				break;
+			}
+
 			/*
 			 * There's intentionally no default: case here; we want the
 			 * compiler to warn if a new OCLASS hasn't been handled above.
@@ -4617,6 +4641,10 @@ getObjectTypeDescription(const ObjectAddress *object, bool missing_ok)
 
 		case OCLASS_TRANSFORM:
 			appendStringInfoString(&buffer, "transform");
+			break;
+
+		case OCLASS_TOASTER:
+			appendStringInfoString(&buffer, "toaster");
 			break;
 
 			/*
@@ -5924,6 +5952,24 @@ getObjectIdentityParts(const ObjectAddress *object,
 				}
 
 				table_close(transformDesc, AccessShareLock);
+			}
+			break;
+
+		case OCLASS_TOASTER:
+			{
+				char	   *tsrname;
+
+				tsrname = get_toaster_name(object->objectId);
+				if (!tsrname)
+				{
+					if (!missing_ok)
+						elog(ERROR, "cache lookup failed for toaster %u",
+							 object->objectId);
+					break;
+				}
+				appendStringInfoString(&buffer, quote_identifier(tsrname));
+				if (objname)
+					*objname = list_make1(tsrname);
 			}
 			break;
 

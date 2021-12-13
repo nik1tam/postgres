@@ -14,3 +14,4 @@ CREATE TABLE tst2 (
 
 ALTER TABLE tst2 ALTER COLUMN t SET TOASTER dummy_toaster;
 
+
