@@ -49,20 +49,20 @@ GetIndexTsrRoutine(Oid tsrhandler)
  * noerror is true, else throws error.
  */
 IndexTsrRoutine *
-GetIndexTsrRoutineByTsrId(Oid tsroid, bool noerror)
+GetIndexTsrRoutineByAmId(Oid tsroid, bool noerror)
 {
 	HeapTuple	tuple;
 	Form_pg_toaster	tsrform;
 	regproc		tsrhandler;
 
 	/* Get handler function OID for the access method */
-	tuple = SearchSysCache1(TOASTEROID, ObjectIdGetDatum(toasteroid));
+	tuple = SearchSysCache1(TOASTEROID, ObjectIdGetDatum(tsroid));
 	if (!HeapTupleIsValid(tuple))
 	{
 		if (noerror)
 			return NULL;
 		elog(ERROR, "cache lookup failed for toaster %u",
-			 toasteroid);
+			 tsroid);
 	}
 	tsrform = (Form_pg_toaster) GETSTRUCT(tuple);
 

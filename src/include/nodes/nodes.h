@@ -520,6 +520,7 @@ typedef enum NodeTag
 	T_FdwRoutine,				/* in foreign/fdwapi.h */
 	T_IndexAmRoutine,			/* in access/amapi.h */
 	T_TableAmRoutine,			/* in access/tableam.h */
+	T_IndexTsrRoutine,			/* in access/toasterapi.h */	
 	T_TsmRoutine,				/* in access/tsmapi.h */
 	T_ForeignKeyCacheInfo,		/* in utils/rel.h */
 	T_CallContext,				/* in nodes/parsenodes.h */

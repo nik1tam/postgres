@@ -13,7 +13,6 @@
 #define TOASTERAPI_H
 
 #include "access/genam.h"
-#include "access/index/amapi.h"
 
 /*
  * We don't wish to include planner header files here, since most of an toaster
@@ -97,5 +96,6 @@ typedef struct IndexTsrRoutine
 /* Functions in access/index/toasterapi.c */
 extern IndexTsrRoutine *GetIndexTsrRoutine(Oid tsrhandler);
 extern IndexTsrRoutine *GetIndexTsrRoutineByAmId(Oid tsroid, bool noerror);
+/* extern IndexTsrRoutine *GetIndexTsrRoutineByTsrId(Oid tsroid, bool noerror); */
 
 #endif							/* TOASTERAPI_H */
