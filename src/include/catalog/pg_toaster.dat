@@ -12,8 +12,5 @@
 
 [
 
-{ oid => '9864', oid_symbol => 'DUMMY_TSR_OID',
-  descr => 'dummy toaster',
-  tsrname => 'dummy', tsrhandler => 'dummy_toaster_handler', tsrtype => 'd' },
 
 ]

@@ -44,8 +44,7 @@ OBJS = \
 	pg_subscription.o \
 	pg_type.o \
 	storage.o \
-	toasting.o \
-	pg_toaster.o
+	toasting.o
 
 include $(top_srcdir)/src/backend/common.mk
 

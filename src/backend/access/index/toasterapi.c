@@ -19,23 +19,22 @@
 #include "utils/builtins.h"
 #include "utils/syscache.h"
 
-
 /*
- * GetIndexTsrRoutine - call the specified toaster handler routine to get
- * its IndexTsrRoutine struct, which will be palloc'd in the caller's context.
+ * GetRoutine - call the specified toaster handler routine to get
+ * its TsrRoutine struct, which will be palloc'd in the caller's context.
  *
  */
-IndexTsrRoutine *
-GetIndexTsrRoutine(Oid tsrhandler)
+TsrRoutine *
+GetTsrRoutine(Oid tsrhandler)
 {
 	Datum		datum;
-	IndexTsrRoutine *routine;
+	TsrRoutine *routine;
 
 	datum = OidFunctionCall0(tsrhandler);
-	routine = (IndexTsrRoutine *) DatumGetPointer(datum);
+	routine = (TsrRoutine *) DatumGetPointer(datum);
 
-	if (routine == NULL || !IsA(routine, IndexTsrRoutine))
-		elog(ERROR, "toaster access method handler function %u did not return an IndexTsrRoutine struct",
+	if (routine == NULL || !IsA(routine, TsrRoutine))
+		elog(ERROR, "toaster handler function %u did not return an TsrRoutine struct",
 			 tsrhandler);
 
 	return routine;
@@ -48,8 +47,8 @@ GetIndexTsrRoutine(Oid tsrhandler)
  * If the given OID isn't a valid index access method, returns NULL if
  * noerror is true, else throws error.
  */
-IndexTsrRoutine *
-GetIndexTsrRoutineByAmId(Oid tsroid, bool noerror)
+TsrRoutine *
+GetTsrRoutineByAmId(Oid tsroid, bool noerror)
 {
 	HeapTuple	tuple;
 	Form_pg_toaster	tsrform;
@@ -65,20 +64,6 @@ GetIndexTsrRoutineByAmId(Oid tsroid, bool noerror)
 			 tsroid);
 	}
 	tsrform = (Form_pg_toaster) GETSTRUCT(tuple);
-
-	/* TODO: type check for toaster */
-	if (tsrform->oid != tsroid)
-	{
-		if (noerror)
-		{
-			ReleaseSysCache(tuple);
-			return NULL;
-		}
-		ereport(ERROR,
-				(errcode(ERRCODE_OBJECT_NOT_IN_PREREQUISITE_STATE),
-				 errmsg("toaster \"%s\" is not of type %s",
-						NameStr(tsrform->tsrtype), "TYPE")));
-	}
 
 	tsrhandler = tsrform->tsrhandler;
 
@@ -99,9 +84,12 @@ GetIndexTsrRoutineByAmId(Oid tsroid, bool noerror)
 	ReleaseSysCache(tuple);
 
 	/* And finally, call the handler function to get the API struct. */
-	return GetIndexTsrRoutine(tsrhandler);
+	return GetTsrRoutine(tsrhandler);
 }
 
+#if 0
+/* XXX teodor: it is not clear now what is a purpose of toaster validate, may
+ * be, is toaster applicable to current column/access method? */
 /*
  * Ask appropriate access method to validate the specified opclass.
  */
@@ -113,7 +101,7 @@ tsrvalidate(PG_FUNCTION_ARGS)
 	HeapTuple	toastertup;
 	Form_pg_toaster toasterform;
 	Oid			tsroid;
-	IndexTsrRoutine *tsrroutine;
+	TsrRoutine *tsrroutine;
 
 	toastertup = SearchSysCache1(TOASTEROID, ObjectIdGetDatum(opclassoid));
 	if (!HeapTupleIsValid(toastertup))
@@ -124,7 +112,7 @@ tsrvalidate(PG_FUNCTION_ARGS)
 
 	ReleaseSysCache(toastertup);
 
-	tsrroutine = GetIndexTsrRoutineByAmId(tsroid, false);
+	tsrroutine = GetTsrRoutineByAmId(tsroid, false);
 
 	if (tsrroutine->tsrvalidate == NULL)
 		elog(ERROR, "function tsrvalidate is not defined for toaster %u",
@@ -136,3 +124,4 @@ tsrvalidate(PG_FUNCTION_ARGS)
 
 	PG_RETURN_BOOL(result);
 }
+#endif
