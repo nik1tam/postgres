@@ -26,18 +26,15 @@
  *		typedef struct FormData_pg_toaster
  * ----------------
  */
-CATALOG(pg_toaster,9861,AccessMethodRelationId)
+CATALOG(pg_toaster,9861,ToasterRelationId)
 {
 	Oid			oid;			/* oid */
 
-	/* access method name */
+	/* toaster name */
 	NameData	tsrname;
 
 	/* handler function */
 	regproc		tsrhandler BKI_LOOKUP(pg_proc);
-
-	/* see TSRTYPE_xxx constants below */
-	char		tsrtype;
 } FormData_pg_toaster;
 
 /* ----------------
@@ -46,9 +43,6 @@ CATALOG(pg_toaster,9861,AccessMethodRelationId)
  * ----------------
  */
 typedef FormData_pg_toaster *Form_pg_toaster;
-
-DECLARE_UNIQUE_INDEX(pg_toaster_name_index, 9862, TsrNameIndexId, on pg_toaster using btree(tsrname name_ops));
-DECLARE_UNIQUE_INDEX_PKEY(pg_toaster_oid_index, 9863, TsrOidIndexId, on pg_toaster using btree(oid oid_ops));
 
 typedef struct Toaster 
 {
@@ -69,5 +63,8 @@ Oid get_toaster_oid(const char *tsrname, bool missing_ok)
 #define TSRTYPE_DUMMY					'd' /* dummy toaster for testing purposes */
 
 #endif							/* EXPOSE_TO_CLIENT_CODE */
+
+DECLARE_UNIQUE_INDEX(pg_toaster_name_index, 9862, ToasterNameIndexId, on pg_toaster using btree(tsrname name_ops));
+DECLARE_UNIQUE_INDEX_PKEY(pg_toaster_oid_index, 9863, ToasterOidIndexId, on pg_toaster using btree(oid oid_ops));
 
 #endif							/* PG_TOASTER_H */

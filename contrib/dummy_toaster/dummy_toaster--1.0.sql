@@ -11,6 +11,5 @@ LANGUAGE C;
 
 CREATE TOASTER dummy_toaster  HANDLER dummy_toaster_handler;
 
--- XXX teodor: will not execute until previous one doesn't work
 COMMENT ON TOASTER dummy_toaster IS 'dummy_toaster is a dummy toaster';
 

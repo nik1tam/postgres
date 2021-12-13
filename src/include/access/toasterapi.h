@@ -43,13 +43,13 @@ typedef enum IndexTsrProperty
  */
 
 /* Toast function */
-typedef Datum (*toast_function) (Relation toast_rel, 
-								Datum value, 
+typedef Datum (*toast_function) (Relation toast_rel,
+								Datum value,
 								int max_inline_size);
 
 /* Detoast function */
-typedef Datum (*detoast_function) (Relation toast_rel, 
-								Datum toast_ptr, 
+typedef Datum (*detoast_function) (Relation toast_rel,
+								Datum toast_ptr,
 								int offset, int length);
 
 /* Return virtual table of functions */
@@ -62,7 +62,7 @@ typedef bool (*toastervalidate_function) (Oid toasteroid);
  * API struct for Toaster.  Note this must be stored in a single palloc'd
  * chunk of memory.
  */
-typedef struct IndexTsrRoutine
+typedef struct TsrRoutine
 {
 	NodeTag		type;
 
@@ -90,12 +90,12 @@ typedef struct IndexTsrRoutine
 	detoast_function detoast;
 	get_vtable_function get_vtable;
 	toastervalidate_function toastervalidate;
-} IndexTsrRoutine;
+} TsrRoutine;
 
 
 /* Functions in access/index/toasterapi.c */
-extern IndexTsrRoutine *GetIndexTsrRoutine(Oid tsrhandler);
-extern IndexTsrRoutine *GetIndexTsrRoutineByAmId(Oid tsroid, bool noerror);
-/* extern IndexTsrRoutine *GetIndexTsrRoutineByTsrId(Oid tsroid, bool noerror); */
+extern TsrRoutine *GetTsrRoutine(Oid tsrhandler);
+extern TsrRoutine *GetTsrRoutineByAmId(Oid tsroid, bool noerror);
+/* extern TsrRoutine *GetTsrRoutineByTsrId(Oid tsroid, bool noerror); */
 
 #endif							/* TOASTERAPI_H */

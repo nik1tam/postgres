@@ -54,6 +54,7 @@
 #include "catalog/pg_statistic_ext.h"
 #include "catalog/pg_subscription.h"
 #include "catalog/pg_tablespace.h"
+#include "catalog/pg_toaster.h"
 #include "catalog/pg_transform.h"
 #include "catalog/pg_trigger.h"
 #include "catalog/pg_ts_config.h"
@@ -1272,11 +1273,9 @@ get_object_address_unqualified(ObjectType objtype,
 			address.objectSubId = 0;
 			break;
 		case OBJECT_TOASTER:
-			/* XXX - teodor */
-			address.classId = InvalidOid;
-			address.objectId = InvalidOid;
+			address.classId = ToasterRelationId;
+			address.objectId = get_toaster_oid(name, missing_ok);
 			address.objectSubId = 0;
-			elog(ERROR, "unimplemented yet (toaster: %s)", strVal(strval));
 			break;
 		case OBJECT_DATABASE:
 			address.classId = DatabaseRelationId;
@@ -2628,6 +2627,7 @@ check_object_ownership(Oid roleid, ObjectType objtype, ObjectAddress address,
 		case OBJECT_TSPARSER:
 		case OBJECT_TSTEMPLATE:
 		case OBJECT_ACCESS_METHOD:
+		case OBJECT_TOASTER:
 			/* We treat these object types as being owned by superusers */
 			if (!superuser_arg(roleid))
 				ereport(ERROR,
