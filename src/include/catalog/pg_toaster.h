@@ -44,26 +44,6 @@ CATALOG(pg_toaster,9861,ToasterRelationId)
  */
 typedef FormData_pg_toaster *Form_pg_toaster;
 
-typedef struct Toaster 
-{
-	Oid			oid;			/* oid */
-	NameData	tsrname;
-	regproc		tsrhandler BKI_LOOKUP(pg_proc);
-	char		tsrtype;
-} Toaster;
-
-extern Toaster *GetToaster(Oid tsrid, bool missing_ok);
-/* Oid get_toaster_oid(const char *tsrname, bool missing_ok) */
-
-#ifdef EXPOSE_TO_CLIENT_CODE
-
-/*
- * Allowed values for tsrtype
- */
-#define TSRTYPE_DUMMY					'd' /* dummy toaster for testing purposes */
-
-#endif							/* EXPOSE_TO_CLIENT_CODE */
-
 DECLARE_UNIQUE_INDEX(pg_toaster_name_index, 9862, ToasterNameIndexId, on pg_toaster using btree(tsrname name_ops));
 DECLARE_UNIQUE_INDEX_PKEY(pg_toaster_oid_index, 9863, ToasterOidIndexId, on pg_toaster using btree(oid oid_ops));
 

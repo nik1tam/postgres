@@ -12,5 +12,8 @@
 
 [
 
+{ oid => '9864', oid_symbol => 'DEFAULT_TOASTER_OID',
+  descr => 'default toaster',
+  tsrname => 'deftoaster', tsrhandler => 'default_toaster_handler' },
 
 ]
