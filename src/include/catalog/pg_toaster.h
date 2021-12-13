@@ -36,7 +36,7 @@ CATALOG(pg_toaster,9861,AccessMethodRelationId)
 	/* handler function */
 	regproc		tsrhandler BKI_LOOKUP(pg_proc);
 
-	/* see TSTTYPE_xxx constants below */
+	/* see TSRTYPE_xxx constants below */
 	char		tsrtype;
 } FormData_pg_toaster;
 

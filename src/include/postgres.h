@@ -66,7 +66,29 @@
  * you can look at these fields!  (The reason we use memcmp is to avoid
  * having to do that just to detect equality of two TOAST pointers...)
  */
-typedef struct varatt_external
+/*
+typedef union
+{
+	struct 
+	{
+		int32		va_rawsize;		/* Original data size (includes header) *
+		uint32		va_extinfo;		/* External saved size (without header) and
+								 * compression method *
+		Oid			va_valueid;		/* Unique ID of value within TOAST table *
+		Oid			va_toastrelid;	/* RelID of TOAST table containing it *
+	} v1;
+	struct
+	{
+		int32		va_rawsize;		/* Original data size (includes header) *
+		uint32		va_extinfo;		/* External saved size (without header) and
+								 * compression method *
+		Oid			va_valueid;		/* Unique ID of value within TOAST table *
+		Oid			va_toastrelid;	/* RelID of TOAST table containing it *
+		Oid			va_toasterid;	/* ID of TOAST handler from PG_TOASTER table *
+	} v2;
+}			varatt_external; */
+
+typedef	struct varatt_external
 {
 	int32		va_rawsize;		/* Original data size (includes header) */
 	uint32		va_extinfo;		/* External saved size (without header) and
@@ -74,7 +96,7 @@ typedef struct varatt_external
 	Oid			va_valueid;		/* Unique ID of value within TOAST table */
 	Oid			va_toastrelid;	/* RelID of TOAST table containing it */
 	Oid			va_toasterid;	/* ID of TOAST handler from PG_TOASTER table */
-}			varatt_external;
+} varatt_external;
 
 /*
  * These macros define the "saved size" portion of va_extinfo.  Its remaining
@@ -339,6 +361,9 @@ typedef struct
 	(VARATT_IS_EXTERNAL(PTR) && !VARTAG_IS_EXPANDED(VARTAG_EXTERNAL(PTR)))
 #define VARATT_IS_SHORT(PTR)				VARATT_IS_1B(PTR)
 #define VARATT_IS_EXTENDED(PTR)				(!VARATT_IS_4B_U(PTR))
+
+/* varatt_external extension for custom toaster - check if TOAST pointer is custom */
+#define VARATT_IS_CUSTOM_TOASTER(PTR)				(VARATT_IS_1B_E(PTR) && ((varattrib_1b_e *) (PTR))->va_toasterid != 0x00)
 
 #define SET_VARSIZE(PTR, len)				SET_VARSIZE_4B(PTR, len)
 #define SET_VARSIZE_SHORT(PTR, len)			SET_VARSIZE_1B(PTR, len)
