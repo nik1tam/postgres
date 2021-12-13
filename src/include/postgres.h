@@ -66,28 +66,6 @@
  * you can look at these fields!  (The reason we use memcmp is to avoid
  * having to do that just to detect equality of two TOAST pointers...)
  */
-/*
-typedef union
-{
-	struct 
-	{
-		int32		va_rawsize;		/* Original data size (includes header) *
-		uint32		va_extinfo;		/* External saved size (without header) and
-								 * compression method *
-		Oid			va_valueid;		/* Unique ID of value within TOAST table *
-		Oid			va_toastrelid;	/* RelID of TOAST table containing it *
-	} v1;
-	struct
-	{
-		int32		va_rawsize;		/* Original data size (includes header) *
-		uint32		va_extinfo;		/* External saved size (without header) and
-								 * compression method *
-		Oid			va_valueid;		/* Unique ID of value within TOAST table *
-		Oid			va_toastrelid;	/* RelID of TOAST table containing it *
-		Oid			va_toasterid;	/* ID of TOAST handler from PG_TOASTER table *
-	} v2;
-}			varatt_external; */
-
 typedef	struct varatt_external
 {
 	int32		va_rawsize;		/* Original data size (includes header) */
@@ -95,8 +73,28 @@ typedef	struct varatt_external
 								 * compression method */
 	Oid			va_valueid;		/* Unique ID of value within TOAST table */
 	Oid			va_toastrelid;	/* RelID of TOAST table containing it */
-	Oid			va_toasterid;	/* ID of TOAST handler from PG_TOASTER table */
 } varatt_external;
+
+/*
+ * struct varatt_custom is a custom "TOAST pointer", that is, the
+ * information needed to fetch a Datum stored out-of-line in a TOAST table.
+ * va_toasterdata could contain varatt_external structure for old Toast 
+ * pointer format (old functionality)
+ *
+ * This struct must not contain any padding, because we sometimes compare
+ * these pointers using memcmp.
+ *
+ * Note that this information is stored unaligned within actual tuples, so
+ * you need to memcpy from the tuple into a local struct variable before
+ * you can look at these fields!  (The reason we use memcmp is to avoid
+ * having to do that just to detect equality of two TOAST pointers...)
+ */
+typedef struct varatt_custom
+{
+	int32		va_placeholder;	/* Placeholder for 2 bits to differ old toast pointer from new */
+	Oid			va_toasterid;	/* ID of TOAST handler from PG_TOASTER table */
+	char		va_toasterdata[FLEXIBLE_ARRAY_MEMBER];	/* Custom toaster data */
+} varatt_custom;
 
 /*
  * These macros define the "saved size" portion of va_extinfo.  Its remaining
@@ -248,6 +246,10 @@ typedef struct
 #define VARATT_NOT_PAD_BYTE(PTR) \
 	(*((uint8 *) (PTR)) != 0)
 
+/* For custom Toaster ptr header - varatt_custom */
+#define VARATT_IS_1B_C(PTR) \
+	((((varattrib_1b *) (PTR))->va_header) == 0x40)
+
 /* VARSIZE_4B() should only be used on known-aligned data */
 #define VARSIZE_4B(PTR) \
 	(((varattrib_4b *) (PTR))->va_4byte.va_header & 0x3FFFFFFF)
@@ -281,6 +283,10 @@ typedef struct
 #define VARATT_NOT_PAD_BYTE(PTR) \
 	(*((uint8 *) (PTR)) != 0)
 
+/* For custom Toaster header - varatt_custom */
+#define VARATT_IS_1B_C(PTR) \
+	((((varattrib_1b *) (PTR))->va_header) == 0x02)
+
 /* VARSIZE_4B() should only be used on known-aligned data */
 #define VARSIZE_4B(PTR) \
 	((((varattrib_4b *) (PTR))->va_4byte.va_header >> 2) & 0x3FFFFFFF)
@@ -310,6 +316,7 @@ typedef struct
  * Externally visible TOAST macros begin here.
  */
 
+#define VARHDRSZ_CUSTOM			offsetof(varattrib_1b_e, va_data)
 #define VARHDRSZ_EXTERNAL		offsetof(varattrib_1b_e, va_data)
 #define VARHDRSZ_COMPRESSED		offsetof(varattrib_4b, va_compressed.va_data)
 #define VARHDRSZ_SHORT			offsetof(varattrib_1b, va_data)
@@ -344,6 +351,9 @@ typedef struct
 #define VARTAG_EXTERNAL(PTR)				VARTAG_1B_E(PTR)
 #define VARSIZE_EXTERNAL(PTR)				(VARHDRSZ_EXTERNAL + VARTAG_SIZE(VARTAG_EXTERNAL(PTR)))
 #define VARDATA_EXTERNAL(PTR)				VARDATA_1B_E(PTR)
+
+/* Custom Toast pointer */
+#define VARATT_IS_CUSTOM(PTR)				VARATT_IS_1B_C(PTR)
 
 #define VARATT_IS_COMPRESSED(PTR)			VARATT_IS_4B_C(PTR)
 #define VARATT_IS_EXTERNAL(PTR)				VARATT_IS_1B_E(PTR)
