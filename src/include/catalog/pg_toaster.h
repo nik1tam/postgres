@@ -50,6 +50,17 @@ typedef FormData_pg_toaster *Form_pg_toaster;
 DECLARE_UNIQUE_INDEX(pg_toaster_name_index, 9862, TsrNameIndexId, on pg_toaster using btree(tsrname name_ops));
 DECLARE_UNIQUE_INDEX_PKEY(pg_toaster_oid_index, 9863, TsrOidIndexId, on pg_toaster using btree(oid oid_ops));
 
+typedef struct Toaster 
+{
+	Oid			oid;			/* oid */
+	NameData	tsrname;
+	regproc		tsrhandler BKI_LOOKUP(pg_proc);
+	char		tsrtype;
+} Toaster;
+
+extern Toaster *GetToaster(Oid tsrid, bool missing_ok);
+Oid get_toaster_oid(const char *tsrname, bool missing_ok)
+
 #ifdef EXPOSE_TO_CLIENT_CODE
 
 /*
