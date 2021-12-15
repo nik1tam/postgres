@@ -249,6 +249,10 @@ typedef struct
 /* For custom Toaster ptr header - varatt_custom */
 #define VARATT_IS_1B_C(PTR) \
 	((((varattrib_1b *) (PTR))->va_header) == 0x40)
+#define VARSIZE_1B_C(PTR) \
+	((((varattrib_1b *) (PTR))->va_header >> 1) & 0x40)
+#define SET_VARSIZE_1B_C(PTR,len) \
+	(((varattrib_1b *) (PTR))->va_header = (((uint8) (len)) << 1) | 0x40)
 
 /* VARSIZE_4B() should only be used on known-aligned data */
 #define VARSIZE_4B(PTR) \
@@ -286,6 +290,10 @@ typedef struct
 /* For custom Toaster header - varatt_custom */
 #define VARATT_IS_1B_C(PTR) \
 	((((varattrib_1b *) (PTR))->va_header) == 0x02)
+#define VARSIZE_1B_C(PTR) \
+	((((varattrib_1b *) (PTR))->va_header >> 1) & 0x02)
+#define SET_VARSIZE_1B_C(PTR,len) \
+	(((varattrib_1b *) (PTR))->va_header = (((uint8) (len)) << 1) | 0x02)
 
 /* VARSIZE_4B() should only be used on known-aligned data */
 #define VARSIZE_4B(PTR) \
@@ -311,6 +319,7 @@ typedef struct
 #define VARDATA_4B_C(PTR)	(((varattrib_4b *) (PTR))->va_compressed.va_data)
 #define VARDATA_1B(PTR)		(((varattrib_1b *) (PTR))->va_data)
 #define VARDATA_1B_E(PTR)	(((varattrib_1b_e *) (PTR))->va_data)
+#define VARDATA_1B_C(PTR)	(((varattrib_1b *) (PTR))->va_data)
 
 /*
  * Externally visible TOAST macros begin here.
@@ -351,6 +360,7 @@ typedef struct
 #define VARTAG_EXTERNAL(PTR)				VARTAG_1B_E(PTR)
 #define VARSIZE_EXTERNAL(PTR)				(VARHDRSZ_EXTERNAL + VARTAG_SIZE(VARTAG_EXTERNAL(PTR)))
 #define VARDATA_EXTERNAL(PTR)				VARDATA_1B_E(PTR)
+#define VARDATA_CUSTOM(PTR)					VARDATA_1B_C(PTR)
 
 /* Custom Toast pointer */
 #define VARATT_IS_CUSTOM(PTR)				VARATT_IS_1B_C(PTR)
